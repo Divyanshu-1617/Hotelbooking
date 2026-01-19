@@ -1,34 +1,70 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// async thunk (already exists in your code)
+/* =======================
+   LOGIN THUNK
+======================= */
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ username, password }, { rejectWithValue }) => {
-    const res = await fetch("https://dummyjson.com/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    });
+    try {
+      const res = await fetch("https://dummyjson.com/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!res.ok) {
-      return rejectWithValue("Invalid credentials");
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.message || "Login failed");
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue("Network error");
     }
-
-    return await res.json();
   }
 );
 
+/* =======================
+   SIGNUP THUNK (OPTIONAL)
+======================= */
+export const signupUser = createAsyncThunk(
+  "auth/signupUser",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const res = await fetch("https://dummyjson.com/users/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.message || "Signup failed");
+      }
+
+      return data;
+    } catch {
+      return rejectWithValue("Network error");
+    }
+  }
+);
+
+/* =======================
+   INITIAL STATE
+======================= */
 const initialState = {
-  // ✅ THIS IS THE IMPORTANT PART
   token: localStorage.getItem("token"),
   user: JSON.parse(localStorage.getItem("user")),
   status: "idle",
   error: null,
 };
 
+/* =======================
+   AUTH SLICE
+======================= */
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -36,26 +72,47 @@ const authSlice = createSlice({
     logout(state) {
       state.token = null;
       state.user = null;
+      state.status = "idle";
+      state.error = null;
       localStorage.removeItem("token");
       localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
     builder
+      // LOGIN
       .addCase(loginUser.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.token = action.payload.token;
-        state.user = action.payload;
+        const { token, id, username, email, firstName, lastName, image } =
+          action.payload;
 
-        // ✅ persist session
-        localStorage.setItem("token", action.payload.token);
-        localStorage.setItem("user", JSON.stringify(action.payload));
+        state.status = "succeeded";
+        state.token = token;
+        state.user = { id, username, email, firstName, lastName, image };
+
+        localStorage.setItem("token", token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify(state.user)
+        );
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+
+      // SIGNUP
+      .addCase(signupUser.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(signupUser.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(signupUser.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });
