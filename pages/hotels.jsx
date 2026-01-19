@@ -13,13 +13,13 @@ export default function Hotels() {
   const [results, setResults] = useState(hotelsData);
   const [error, setError] = useState("");
 
-  // ✅ NEW
   const [view, setView] = useState("grid"); // grid | list
   const [page, setPage] = useState(1);
 
   const handleSearch = (e) => {
     e.preventDefault();
 
+    // 🔴 VALIDATION
     if (!city.trim()) {
       setError("City is required");
       return;
@@ -30,8 +30,14 @@ export default function Hotels() {
       return;
     }
 
+    if (guests < 1) {
+      setError("Guests must be at least 1");
+      return;
+    }
+
     setError("");
 
+    // ✅ UPDATED FILTER LOGIC (GUESTS ADDED)
     const filtered = hotelsData.filter((hotel) => {
       const cityMatch = hotel.city
         .toLowerCase()
@@ -41,14 +47,16 @@ export default function Hotels() {
         checkIn >= hotel.availableFrom &&
         checkOut <= hotel.availableTo;
 
-      return cityMatch && availabilityMatch;
+      const guestMatch = hotel.maxGuests >= guests;
+
+      return cityMatch && availabilityMatch && guestMatch;
     });
 
     setResults(filtered);
     setPage(1); // reset pagination
   };
 
-  // ✅ PAGINATION LOGIC
+  // 📄 PAGINATION
   const totalPages = Math.ceil(results.length / ITEMS_PER_PAGE);
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
   const paginatedHotels = results.slice(
@@ -72,8 +80,17 @@ export default function Hotels() {
           onChange={(e) => setCity(e.target.value)}
         />
 
-        <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
-        <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
+        <input
+          type="date"
+          value={checkIn}
+          onChange={(e) => setCheckIn(e.target.value)}
+        />
+
+        <input
+          type="date"
+          value={checkOut}
+          onChange={(e) => setCheckOut(e.target.value)}
+        />
 
         <input
           type="number"
@@ -103,7 +120,9 @@ export default function Hotels() {
         style={{
           display: "grid",
           gridTemplateColumns:
-            view === "grid" ? "repeat(auto-fill, minmax(250px, 1fr))" : "1fr",
+            view === "grid"
+              ? "repeat(auto-fill, minmax(250px, 1fr))"
+              : "1fr",
           gap: 20,
           marginTop: 20,
         }}
