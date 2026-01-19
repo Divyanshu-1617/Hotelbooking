@@ -6,17 +6,33 @@ const hotelsData = [
     price: 4500,
     rating: 4.6,
     reviews: 820,
-    amenities: ["wifi", "pool", "parking", "ac"],
     type: "Resort",
+
+    maxGuests: 4,
+    availableFrom: "2024-05-01",
+    availableTo: "2024-12-31",
+
+    amenities: ["wifi", "pool", "parking", "ac"],
+
     images: [
       "https://picsum.photos/400/250?1",
       "https://picsum.photos/400/250?2",
     ],
+
     rooms: [
-      { type: "Deluxe", price: 4500 },
-      { type: "Suite", price: 7500 },
+      {
+        type: "Deluxe",
+        price: 4500,
+        maxGuests: 2,
+      },
+      {
+        type: "Suite",
+        price: 7500,
+        maxGuests: 4,
+      },
     ],
   },
+
   {
     id: 2,
     name: "City View Hotel",
@@ -24,14 +40,33 @@ const hotelsData = [
     price: 3200,
     rating: 4.1,
     reviews: 430,
-    amenities: ["wifi", "parking", "ac"],
     type: "Hotel",
+
+    maxGuests: 3,
+    availableFrom: "2024-04-01",
+    availableTo: "2024-11-30",
+
+    amenities: ["wifi", "parking", "ac"],
+
     images: [
       "https://picsum.photos/400/250?3",
       "https://picsum.photos/400/250?4",
     ],
-    rooms: [{ type: "Standard", price: 3200 }],
+
+    rooms: [
+      {
+        type: "Standard",
+        price: 3200,
+        maxGuests: 2,
+      },
+      {
+        type: "Executive",
+        price: 4800,
+        maxGuests: 3,
+      },
+    ],
   },
+
   {
     id: 3,
     name: "Ocean Breeze Apartments",
@@ -39,13 +74,26 @@ const hotelsData = [
     price: 2800,
     rating: 3.9,
     reviews: 210,
-    amenities: ["wifi"],
     type: "Apartment",
+
+    maxGuests: 2,
+    availableFrom: "2024-01-01",
+    availableTo: "2024-12-31",
+
+    amenities: ["wifi"],
+
     images: [
       "https://picsum.photos/400/250?5",
       "https://picsum.photos/400/250?6",
     ],
-    rooms: [{ type: "Studio", price: 2800 }],
+
+    rooms: [
+      {
+        type: "Studio",
+        price: 2800,
+        maxGuests: 2,
+      },
+    ],
   },
 ];
 
